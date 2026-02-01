@@ -1,5 +1,10 @@
-function status(request, response) {
-  response.status(200).json({ valor: "Confirmado!!" });
-}
+import database from "../../../../infra/database.js";
 
-export default status;
+let requestCount = 0;
+
+export default async function status(request, response) {
+  requestCount += 1;
+  const result = await database.query("SELECT 1 + 1 as sum");
+  console.log(`[api/v1/status] Requisição #${requestCount}:`, result.rows);
+  response.status(200).json({ chave: "são acima da média" });
+}
