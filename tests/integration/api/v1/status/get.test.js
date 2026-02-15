@@ -1,30 +1,15 @@
 import database from "../../../../../infra/database.js";
-
-//Função auxiliar para verificar se o servidor está disponível
-async function isServerAvailable(url) {
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 1000);
-    const response = await fetch(url, { signal: controller.signal });
-    clearTimeout(timeoutId);
-    return true;
-  } catch (error) {
-    return false;
-  }
-}
-
-test("GET to api/v1/status should return 200", async () => {
-  const url = "http://localhost:3000/api/v1/status";
-
-  const serverAvailable = await isServerAvailable(url);
-  if (!serverAvailable) {
-    console.warn(
-      "⚠️  Servidor não está disponível em http://localhost:3000.\n" +
-        "   Execute 'npm run dev' em outro terminal antes de rodar os testes."
-    );
-    return;
-  }
-
-  const response = await fetch(url);
+ 
+test("GET to api/v1/status should return 200", async () => { 
+  const response = await fetch("http://localhost:3000/api/v1/status");
   expect(response.status).toBe(200);
+
+  const responseBody= await response.json();
+
+  const parseUpdateAt = new Date(responseBody.update_at).toISOString();
+  expect(responseBody.update_at).toEqual(parseUpdateAt);
+
+ expect(responseBody.dependencies.database.version).toEqual("16.0");
+ expect(responseBody.dependencies.database.max_connections).toEqual(100);
+ expect(responseBody.dependencies.database.opened_connections).toEqual(1);
 });
